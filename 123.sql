@@ -54,7 +54,7 @@ create table trader_order (
 	`trader id` int,
     `order id` int,
     primary key (`trader id`, `order id`),
-    foreign key (`trader id`) references trader(`DMAT Account Number`),
+    foreign key (`trader id`) references trader(`trader id`),
     foreign key (`order id`) references `order`(`order id`)
 );
 
@@ -69,6 +69,7 @@ create table `mail id` (
 	`trader id` int,
     foreign key (`trader id`) references trader(`DMAT Account Number`),
 	`mail id` varchar (25)
+
 );
 
 
