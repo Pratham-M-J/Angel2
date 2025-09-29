@@ -9,7 +9,6 @@ CREATE TABLE Broker (
     LicenseNumber VARCHAR(15) UNIQUE NOT NULL
 );
 
-INSERT INTO Broker VALUES (10001, 'AlphaSec', 0.50, 'LIC12345');
 
 CREATE TABLE Stock ( 
 	Stock_ID INT (5) PRIMARY KEY,
@@ -30,8 +29,7 @@ CREATE TABLE `Order` (
 	`Order ID` INT (5) PRIMARY KEY, 
 	`Stock Name` VARCHAR (15), 
 	Quantity INT (5), 
-	`Stock ID` INT (5),
-    
+	`Stock ID` INT (5)    
 );
 
 
@@ -55,21 +53,21 @@ create table trader_order (
 	`trader id` int (5),
     `order id` int (5),
     primary key (`trader id`, `order id`),
-    foreign key (`trader id`) references trader(`trader id`),
+    foreign key (`trader id`) references trader(`DMAT Account Number`),
     foreign key (`order id`) references `order`(`order id`)
 );
 
 create table phone_number (
 	`trader id` int (5),
-    foreign key (`trader id`) references trader(`trader id`),
+    foreign key (`trader id`) references trader(`DMAT Account Number`),
     phone_number int (10)
 );
 
 
-create table phone_number (
+create table `mail id` (
 	`trader id` int (5),
-    foreign key (`trader id`) references trader(`trader id`),
-    mail varchar (25)
+    foreign key (`trader id`) references trader(`DMAT Account Number`),
+	`mail id` varchar (25)
 );
 
 
