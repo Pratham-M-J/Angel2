@@ -72,6 +72,62 @@ create table `mail id` (
 
 );
 
+ALTER TABLE `Futures & Options`
+ADD CONSTRAINT derivative_of_derivative
+FOREIGN KEY (Derivates) REFERENCES `Futures & Options`(`F&O ID`);
+
+ALTER TABLE `Trader`
+ADD CONSTRAINT trader_orderid
+FOREIGN KEY (`Order ID`) REFERENCES `Order`(`Order ID`);
+
+ALTER TABLE `Order`
+ADD CONSTRAINT order_stockid
+FOREIGN KEY (`Stock ID`) REFERENCES `Stock`(`Stock ID`);
+
+ALTER TABLE `Futures & Options`
+ADD CONSTRAINT underlying_asset
+FOREIGN KEY (`Underlying Asset`) REFERENCES `Stock` (`Stock ID`);
+
+ALTER TABLE Broker
+ADD CONSTRAINT chk_commission CHECK (CommissionRate >= 0);
+
+ALTER TABLE has_info
+DROP FOREIGN KEY has_info_ibfk_1,
+DROP FOREIGN KEY has_info_ibfk_2;
+
+ALTER TABLE has_info
+ADD CONSTRAINT fk_hasinfo_broker FOREIGN KEY (BrokerID)
+    REFERENCES Broker(BrokerID)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT fk_hasinfo_stock FOREIGN KEY (`Stock ID`)
+    REFERENCES Stock(`Stock ID`)
+    ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+alter table trader_order
+drop foreign key trader_order_ibfk_1,
+drop foreign key trader_order_ibfk_2;
+
+ALTER TABLE trader_order
+ADD CONSTRAINT fk_traderorder_trader FOREIGN KEY (`trader id`)
+    REFERENCES Trader(`DMAT Account Number`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT fk_traderorder_order FOREIGN KEY (`order id`)
+    REFERENCES `Order`(`order id`)
+    ON DELETE CASCADE ON UPDATE CASCADE;
+    
+ALTER TABLE phone_number
+ADD CONSTRAINT pk_phone PRIMARY KEY (`trader id`, phone_number);
+
+ALTER TABLE phone_number
+MODIFY phone_number VARCHAR(15) NOT NULL;
+
+ALTER TABLE `mail id`
+ADD CONSTRAINT pk_mail PRIMARY KEY (`trader id`, `mail id`);
+
+ALTER TABLE `mail id`
+MODIFY `mail id` VARCHAR(25) NOT NULL;
+
 
 
 
