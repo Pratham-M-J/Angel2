@@ -92,7 +92,7 @@
                     <select id="trader_id" name="trader_id" required>
                         <option value="">Choose a trader...</option>
                         {% for trader in traders %}
-                        <option value="{{ trader.dmat_account_number }}">{{ trader.name }} (DMAT: {{ trader.dmat_account_number }})</option>
+                        <option value="{{ trader['DMAT Account Number'] }}">{{ trader['Name'] }} (DMAT: {{ trader['DMAT Account Number'] }})</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -118,7 +118,7 @@
                     <select id="stock_id" name="stock_id">
                         <option value="">Choose a stock...</option>
                         {% for stock in stocks %}
-                        <option value="{{ stock.stock_id }}">{{ stock.stock_name }} - ₹{{ stock.stock_price }}</option>
+                        <option value="{{ stock['Stock ID'] }}">{{ stock['Stock Name'] }} - ₹{{ stock['Stock Price'] }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -128,7 +128,7 @@
                     <select id="fo_id" name="fo_id">
                         <option value="">Choose a F&O contract...</option>
                         {% for fo in fos %}
-                        <option value="{{ fo.fo_id }}">{{ fo.type }} - Contract Size: {{ fo.contract_size }}</option>
+                        <option value="{{ fo['F&O ID'] }}">{{ fo['Type'] }} - Contract Size: {{ fo['Contract Size'] }}</option>
                         {% endfor %}
                     </select>
                 </div>

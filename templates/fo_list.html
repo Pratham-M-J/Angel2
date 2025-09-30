@@ -107,11 +107,11 @@
                 <tbody>
                     {% for fo in fos %}
                     <tr>
-                        <td>{{ fo.fo_id }}</td>
-                        <td>{{ fo.type }}</td>
-                        <td>{{ fo.contract_size }}</td>
-                        <td>{{ fo.underlying_asset }}</td>
-                        <td>{{ fo.expiry_date }}</td>
+                        <td>{{ fo['F&O ID'] }}</td>
+                        <td>{{ fo['Type'] }}</td>
+                        <td>{{ fo['Contract Size'] }}</td>
+                        <td>{{ fo['Underlying Asset'] }}</td>
+                        <td>{{ fo['Expiry Date'] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -24,13 +24,13 @@ def place_order():
         if order_type == 'stock':
             stock_id = request.form.get('stock_id')
             stock = Stock.get_by_id(stock_id)
-            stock_name = stock['stock_name'] if stock else ''
+            stock_name = stock['Stock Name'] if stock else ''
             
             order_id = Order.create(stock_name, quantity, stock_id, order_type='stock')
         elif order_type == 'fo':
             fo_id = request.form.get('fo_id')
             fo = FuturesOptions.get_by_id(fo_id)
-            fo_name = f"{fo['type']} Contract" if fo else ''
+            fo_name = f"{fo['Type']} Contract" if fo else ''
             
             order_id = Order.create(fo_name, quantity, fo_id, order_type='fo')
         

@@ -85,19 +85,19 @@
             <h2>Broker Information</h2>
             <div class="info-row">
                 <div class="info-label">Broker ID:</div>
-                <div class="info-value">{{ broker.broker_id }}</div>
+                <div class="info-value">{{ broker.BrokerID }}</div>
             </div>
             <div class="info-row">
                 <div class="info-label">Name:</div>
-                <div class="info-value">{{ broker.name }}</div>
+                <div class="info-value">{{ broker.Name }}</div>
             </div>
             <div class="info-row">
                 <div class="info-label">Commission Rate:</div>
-                <div class="info-value">{{ broker.commission_rate }}%</div>
+                <div class="info-value">{{ broker.CommissionRate }}%</div>
             </div>
             <div class="info-row">
                 <div class="info-label">License Number:</div>
-                <div class="info-value">{{ broker.license_number }}</div>
+                <div class="info-value">{{ broker.LicenseNumber }}</div>
             </div>
         </div>
         
@@ -116,10 +116,10 @@
                 <tbody>
                     {% for stock in stocks %}
                     <tr>
-                        <td>{{ stock.stock_id }}</td>
-                        <td>{{ stock.stock_name }}</td>
-                        <td>₹{{ stock.stock_price }}</td>
-                        <td>{{ stock.pe_ratio if stock.pe_ratio else 'N/A' }}</td>
+                        <td>{{ stock['Stock ID'] }}</td>
+                        <td>{{ stock['Stock Name'] }}</td>
+                        <td>₹{{ stock['Stock Price'] }}</td>
+                        <td>{{ stock['PE Ratio'] if stock['PE Ratio'] else 'N/A' }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

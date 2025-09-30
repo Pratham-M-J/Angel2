@@ -123,8 +123,8 @@
                     <div class="checkbox-group">
                         {% for stock in stocks %}
                         <div class="checkbox-item">
-                            <input type="checkbox" id="stock_{{ stock.stock_id }}" name="stock_ids" value="{{ stock.stock_id }}">
-                            <label for="stock_{{ stock.stock_id }}">{{ stock.stock_name }} - ₹{{ stock.stock_price }}</label>
+                            <input type="checkbox" id="stock_{{ stock['Stock ID'] }}" name="stock_ids" value="{{ stock['Stock ID'] }}">
+                            <label for="stock_{{ stock['Stock ID'] }}">{{ stock['Stock Name'] }} - ₹{{ stock['Stock Price'] }}</label>
                         </div>
                         {% endfor %}
                     </div>

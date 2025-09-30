@@ -95,10 +95,10 @@
                 <tbody>
                     {% for stock in stocks %}
                     <tr>
-                        <td>{{ stock.stock_id }}</td>
-                        <td>{{ stock.stock_name }}</td>
-                        <td class="price">₹{{ stock.stock_price }}</td>
-                        <td>{{ stock.pe_ratio if stock.pe_ratio else 'N/A' }}</td>
+                        <td>{{ stock['Stock ID'] }}</td>
+                        <td>{{ stock['Stock Name'] }}</td>
+                        <td class="price">₹{{ stock['Stock Price'] }}</td>
+                        <td>{{ stock['PE Ratio'] if stock['PE Ratio'] else 'N/A' }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

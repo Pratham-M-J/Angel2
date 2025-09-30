@@ -1,27 +1,25 @@
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import pymysql
+import pymysql.cursors
 from config import Config
 
 def get_db_connection():
     """Get database connection"""
-    conn = psycopg2.connect(
+    conn = pymysql.connect(
         host=Config.DB_HOST,
         user=Config.DB_USER,
         password=Config.DB_PASSWORD,
         database=Config.DB_NAME,
-        port=Config.DB_PORT
+        port=Config.DB_PORT,
+        charset=Config.DB_CHARSET,
+        cursorclass=pymysql.cursors.DictCursor
     )
     return conn
-
-def get_db_cursor(conn):
-    """Get database cursor with RealDictCursor"""
-    return conn.cursor(cursor_factory=RealDictCursor)
 
 class Stock:
     @staticmethod
     def get_all():
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
+        cursor = conn.cursor()
         cursor.execute('SELECT * FROM Stock')
         stocks = cursor.fetchall()
         conn.close()
@@ -30,8 +28,8 @@ class Stock:
     @staticmethod
     def get_by_id(stock_id):
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-        cursor.execute('SELECT * FROM Stock WHERE stock_id = %s', (stock_id,))
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM Stock WHERE `Stock ID` = %s', (stock_id,))
         stock = cursor.fetchone()
         conn.close()
         return stock
@@ -41,10 +39,10 @@ class Stock:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO Stock (stock_name, stock_price, pe_ratio) VALUES (%s, %s, %s) RETURNING stock_id',
+            'INSERT INTO Stock (`Stock Name`, `Stock Price`, `PE Ratio`) VALUES (%s, %s, %s)',
             (stock_name, stock_price, pe_ratio)
         )
-        stock_id = cursor.fetchone()[0]
+        stock_id = cursor.lastrowid
         conn.commit()
         conn.close()
         return stock_id
@@ -53,7 +51,7 @@ class Trader:
     @staticmethod
     def get_all():
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
+        cursor = conn.cursor()
         cursor.execute('SELECT * FROM Trader')
         traders = cursor.fetchall()
         conn.close()
@@ -62,8 +60,8 @@ class Trader:
     @staticmethod
     def get_by_id(dmat_account_number):
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-        cursor.execute('SELECT * FROM Trader WHERE dmat_account_number = %s', (dmat_account_number,))
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM Trader WHERE `DMAT Account Number` = %s', (dmat_account_number,))
         trader = cursor.fetchone()
         conn.close()
         return trader
@@ -73,10 +71,10 @@ class Trader:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO Trader (name, age, phone_number, mail_id) VALUES (%s, %s, %s, %s) RETURNING dmat_account_number',
+            'INSERT INTO Trader (Name, Age, `Phone Number`, `Mail ID`) VALUES (%s, %s, %s, %s)',
             (name, age, phone_number, mail_id)
         )
-        dmat_account_number = cursor.fetchone()[0]
+        dmat_account_number = cursor.lastrowid
         conn.commit()
         conn.close()
         return dmat_account_number
@@ -85,8 +83,8 @@ class Order:
     @staticmethod
     def get_all():
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-        cursor.execute('SELECT * FROM "Order"')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM `Order`')
         orders = cursor.fetchall()
         conn.close()
         return orders
@@ -94,8 +92,8 @@ class Order:
     @staticmethod
     def get_by_id(order_id):
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-        cursor.execute('SELECT * FROM "Order" WHERE order_id = %s', (order_id,))
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM `Order` WHERE `Order ID` = %s', (order_id,))
         order = cursor.fetchone()
         conn.close()
         return order
@@ -105,10 +103,10 @@ class Order:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO "Order" (stock_name, quantity, stock_id) VALUES (%s, %s, %s) RETURNING order_id',
+            'INSERT INTO `Order` (`Stock Name`, Quantity, `Stock ID`) VALUES (%s, %s, %s)',
             (stock_name, quantity, stock_id)
         )
-        order_id = cursor.fetchone()[0]
+        order_id = cursor.lastrowid
         conn.commit()
         conn.close()
         return order_id
@@ -118,7 +116,7 @@ class Order:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO trader_order (trader_id, order_id) VALUES (%s, %s)',
+            'INSERT INTO trader_order (`trader id`, `order id`) VALUES (%s, %s)',
             (trader_id, order_id)
         )
         conn.commit()
@@ -128,7 +126,7 @@ class Broker:
     @staticmethod
     def get_all():
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
+        cursor = conn.cursor()
         cursor.execute('SELECT * FROM Broker')
         brokers = cursor.fetchall()
         conn.close()
@@ -137,8 +135,8 @@ class Broker:
     @staticmethod
     def get_by_id(broker_id):
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-        cursor.execute('SELECT * FROM Broker WHERE broker_id = %s', (broker_id,))
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM Broker WHERE BrokerID = %s', (broker_id,))
         broker = cursor.fetchone()
         conn.close()
         return broker
@@ -148,10 +146,10 @@ class Broker:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO Broker (name, commission_rate, license_number) VALUES (%s, %s, %s) RETURNING broker_id',
+            'INSERT INTO Broker (Name, CommissionRate, LicenseNumber) VALUES (%s, %s, %s)',
             (name, commission_rate, license_number)
         )
-        broker_id = cursor.fetchone()[0]
+        broker_id = cursor.lastrowid
         conn.commit()
         conn.close()
         return broker_id
@@ -159,11 +157,11 @@ class Broker:
     @staticmethod
     def get_stocks(broker_id):
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
+        cursor = conn.cursor()
         cursor.execute('''
             SELECT s.* FROM Stock s
-            JOIN has_info hi ON s.stock_id = hi.stock_id
-            WHERE hi.broker_id = %s
+            JOIN has_info hi ON s.`Stock ID` = hi.`Stock ID`
+            WHERE hi.BrokerID = %s
         ''', (broker_id,))
         stocks = cursor.fetchall()
         conn.close()
@@ -174,7 +172,7 @@ class Broker:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO has_info (broker_id, stock_id) VALUES (%s, %s)',
+            'INSERT INTO has_info (BrokerID, `Stock ID`) VALUES (%s, %s)',
             (broker_id, stock_id)
         )
         conn.commit()
@@ -184,8 +182,8 @@ class FuturesOptions:
     @staticmethod
     def get_all():
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-        cursor.execute('SELECT * FROM Futures_Options')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM `Futures & Options`')
         fos = cursor.fetchall()
         conn.close()
         return fos
@@ -193,8 +191,8 @@ class FuturesOptions:
     @staticmethod
     def get_by_id(fo_id):
         conn = get_db_connection()
-        cursor = get_db_cursor(conn)
-        cursor.execute('SELECT * FROM Futures_Options WHERE fo_id = %s', (fo_id,))
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM `Futures & Options` WHERE `F&O ID` = %s', (fo_id,))
         fo = cursor.fetchone()
         conn.close()
         return fo
@@ -204,10 +202,10 @@ class FuturesOptions:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO Futures_Options (type, contract_size, underlying_asset, expiry_date, derivatives) VALUES (%s, %s, %s, %s, %s) RETURNING fo_id',
+            'INSERT INTO `Futures & Options` (Type, `Contract Size`, `Underlying Asset`, `Expiry Date`, Derivates) VALUES (%s, %s, %s, %s, %s)',
             (fo_type, contract_size, underlying_asset, expiry_date, derivatives)
         )
-        fo_id = cursor.fetchone()[0]
+        fo_id = cursor.lastrowid
         conn.commit()
         conn.close()
         return fo_id

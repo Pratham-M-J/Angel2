@@ -92,11 +92,11 @@
                 <tbody>
                     {% for trader in traders %}
                     <tr>
-                        <td>{{ trader.dmat_account_number }}</td>
-                        <td>{{ trader.name }}</td>
-                        <td>{{ trader.phone_number if trader.phone_number else 'N/A' }}</td>
-                        <td>{{ trader.mail_id if trader.mail_id else 'N/A' }}</td>
-                        <td>{{ trader.age }}</td>
+                        <td>{{ trader['DMAT Account Number'] }}</td>
+                        <td>{{ trader['Name'] }}</td>
+                        <td>{{ trader['Phone Number'] if trader['Phone Number'] else 'N/A' }}</td>
+                        <td>{{ trader['Mail ID'] if trader['Mail ID'] else 'N/A' }}</td>
+                        <td>{{ trader['Age'] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

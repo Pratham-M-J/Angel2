@@ -103,7 +103,7 @@
                     <select id="underlying_asset" name="underlying_asset" required>
                         <option value="">Choose a stock...</option>
                         {% for stock in stocks %}
-                        <option value="{{ stock.stock_id }}">{{ stock.stock_name }} - ₹{{ stock.stock_price }}</option>
+                        <option value="{{ stock['Stock ID'] }}">{{ stock['Stock Name'] }} - ₹{{ stock['Stock Price'] }}</option>
                         {% endfor %}
                     </select>
                 </div>

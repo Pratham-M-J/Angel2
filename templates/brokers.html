@@ -91,11 +91,11 @@
                 </thead>
                 <tbody>
                     {% for broker in brokers %}
-                    <tr onclick="window.location='/broker/{{ broker.broker_id }}'" style="cursor: pointer;">
-                        <td>{{ broker.broker_id }}</td>
-                        <td>{{ broker.name }}</td>
-                        <td>{{ broker.commission_rate }}%</td>
-                        <td>{{ broker.license_number }}</td>
+                    <tr onclick="window.location='/broker/{{ broker.BrokerID }}'" style="cursor: pointer;">
+                        <td>{{ broker.BrokerID }}</td>
+                        <td>{{ broker.Name }}</td>
+                        <td>{{ broker.CommissionRate }}%</td>
+                        <td>{{ broker.LicenseNumber }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
