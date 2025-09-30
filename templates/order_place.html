@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order - Angel2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/orders" class="back-btn">← Back to Orders</a>
+        <h1>📝 Place Order</h1>
+        
+        <div class="form-container">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="trader_id">Select Trader</label>
+                    <select id="trader_id" name="trader_id" required>
+                        <option value="">Choose a trader...</option>
+                        {% for trader in traders %}
+                        <option value="{{ trader.dmat_account_number }}">{{ trader.name }} (DMAT: {{ trader.dmat_account_number }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="order_type">Order Type</label>
+                    <select id="order_type" name="order_type" required onchange="toggleOrderType()">
+                        <option value="stock">Stock Order</option>
+                        <option value="fo">Futures & Options</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="action">Action</label>
+                    <select id="action" name="action" required>
+                        <option value="buy">Buy</option>
+                        <option value="sell">Sell</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="stock_group">
+                    <label for="stock_id">Select Stock</label>
+                    <select id="stock_id" name="stock_id">
+                        <option value="">Choose a stock...</option>
+                        {% for stock in stocks %}
+                        <option value="{{ stock.stock_id }}">{{ stock.stock_name }} - ₹{{ stock.stock_price }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group hidden" id="fo_group">
+                    <label for="fo_id">Select Futures & Options</label>
+                    <select id="fo_id" name="fo_id">
+                        <option value="">Choose a F&O contract...</option>
+                        {% for fo in fos %}
+                        <option value="{{ fo.fo_id }}">{{ fo.type }} - Contract Size: {{ fo.contract_size }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" min="1" required>
+                </div>
+                
+                <button type="submit">Place Order</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function toggleOrderType() {
+            const orderType = document.getElementById('order_type').value;
+            const stockGroup = document.getElementById('stock_group');
+            const foGroup = document.getElementById('fo_group');
+            const stockSelect = document.getElementById('stock_id');
+            const foSelect = document.getElementById('fo_id');
+            
+            if (orderType === 'stock') {
+                stockGroup.classList.remove('hidden');
+                foGroup.classList.add('hidden');
+                stockSelect.required = true;
+                foSelect.required = false;
+            } else {
+                stockGroup.classList.add('hidden');
+                foGroup.classList.remove('hidden');
+                stockSelect.required = false;
+                foSelect.required = true;
+            }
+        }
+        
+        toggleOrderType();
+    </script>
+</body>
+</html>

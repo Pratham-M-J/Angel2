@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brokers - Angel2</title>
+    <title>Futures & Options - Angel2</title>
     <style>
         * {
             margin: 0;
@@ -70,39 +70,55 @@
             padding: 40px;
             color: #999;
         }
+        .create-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #27ae60;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            float: right;
+        }
+        .create-btn:hover {
+            background: #229954;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="/" class="back-btn">← Back to Home</a>
-        <a href="/broker/create" class="create-btn" style="display: inline-block; padding: 10px 20px; background: #27ae60; color: white; text-decoration: none; border-radius: 8px; margin-bottom: 20px; font-weight: bold; float: right;">+ Create Broker</a>
-        <h1>💼 Brokers</h1>
+        <a href="/futures-options/create" class="create-btn">+ Create F&O</a>
+        <h1>📊 Futures & Options</h1>
         
         <div class="table-container">
-            {% if brokers %}
+            {% if fos %}
             <table>
                 <thead>
                     <tr>
-                        <th>Broker ID</th>
-                        <th>Name</th>
-                        <th>Commission Rate</th>
-                        <th>License Number</th>
+                        <th>F&O ID</th>
+                        <th>Type</th>
+                        <th>Contract Size</th>
+                        <th>Underlying Asset</th>
+                        <th>Expiry Date</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for broker in brokers %}
-                    <tr onclick="window.location='/broker/{{ broker.broker_id }}'" style="cursor: pointer;">
-                        <td>{{ broker.broker_id }}</td>
-                        <td>{{ broker.name }}</td>
-                        <td>{{ broker.commission_rate }}%</td>
-                        <td>{{ broker.license_number }}</td>
+                    {% for fo in fos %}
+                    <tr>
+                        <td>{{ fo.fo_id }}</td>
+                        <td>{{ fo.type }}</td>
+                        <td>{{ fo.contract_size }}</td>
+                        <td>{{ fo.underlying_asset }}</td>
+                        <td>{{ fo.expiry_date }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             {% else %}
             <div class="empty-state">
-                <p>No brokers registered</p>
+                <p>No futures & options contracts available</p>
             </div>
             {% endif %}
         </div>
