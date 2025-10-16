@@ -78,21 +78,70 @@
         .hidden {
             display: none;
         }
+        .error-band {
+            background: #ff4d4d;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .holdings-summary {
+            background: #f0f0f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .holdings-summary h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .holdings-summary ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .holdings-summary li {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="/orders" class="back-btn">← Back to Orders</a>
         <h1>📝 Place Order</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="error-band">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         
         <div class="form-container">
+            <div id="holdings-summary" class="holdings-summary hidden">
+                <h3>Your Holdings</h3>
+                <div id="holdings-content"></div>
+            </div>
+
             <form method="POST">
                 <div class="form-group">
                     <label for="trader_id">Select Trader</label>
-                    <select id="trader_id" name="trader_id" required>
+                    <select id="trader_id" name="trader_id" required onchange="fetchHoldings()">
                         <option value="">Choose a trader...</option>
                         {% for trader in traders %}
                         <option value="{{ trader['DMAT Account Number'] }}">{{ trader['Name'] }} (DMAT: {{ trader['DMAT Account Number'] }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="broker_id">Select Broker</label>
+                    <select id="broker_id" name="broker_id" required>
+                        <option value="">Choose a broker...</option>
+                        {% for broker in brokers %}
+                        <option value="{{ broker.BrokerID }}">{{ broker.Name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -115,13 +164,15 @@
                 
                 <div class="form-group" id="stock_group">
                     <label for="stock_id">Select Stock</label>
-                    <select id="stock_id" name="stock_id">
-                        <option value="">Choose a stock...</option>
+                    <select name="stock_id" id="stock_id">
                         {% for stock in stocks %}
-                        <option value="{{ stock['Stock ID'] }}">{{ stock['Stock Name'] }} - ₹{{ stock['Stock Price'] }}</option>
+                            <option value="{{ stock['Stock ID'] }}">
+                                {{ stock['Stock Name'] }} - ₹{{ stock['Price'] }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
+
                 
                 <div class="form-group hidden" id="fo_group">
                     <label for="fo_id">Select Futures & Options</label>
@@ -164,6 +215,40 @@
             }
         }
         
+        function fetchHoldings() {
+            const traderId = document.getElementById('trader_id').value;
+            const holdingsSummary = document.getElementById('holdings-summary');
+            const holdingsContent = document.getElementById('holdings-content');
+
+            if (traderId) {
+                fetch(`/api/trader/${traderId}/holdings`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = '<h4>Stocks</h4><ul>';
+                        if (data.stocks && data.stocks.length > 0) {
+                            data.stocks.forEach(stock => {
+                                html += `<li>${stock.name}: ${stock.quantity}</li>`;
+                            });
+                        } else {
+                            html += '<li>No stock holdings</li>';
+                        }
+                        html += '</ul><h4>Futures & Options</h4><ul>';
+                        if (data.fos && data.fos.length > 0) {
+                            data.fos.forEach(fo => {
+                                html += `<li>${fo.name}: ${fo.quantity}</li>`;
+                            });
+                        } else {
+                            html += '<li>No F&O holdings</li>';
+                        }
+                        html += '</ul>';
+                        holdingsContent.innerHTML = html;
+                        holdingsSummary.classList.remove('hidden');
+                    });
+            } else {
+                holdingsSummary.classList.add('hidden');
+            }
+        }
+
         toggleOrderType();
     </script>
 </body>

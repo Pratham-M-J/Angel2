@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders - Angel2</title>
+    <title>Trader Orders - Angel2</title>
     <style>
         * {
             margin: 0;
@@ -74,32 +74,36 @@
 </head>
 <body>
     <div class="container">
-        <a href="/" class="back-btn">← Back to Home</a>
-        <h1>📝 Orders</h1>
+        <a href="/orders" class="back-btn">← Back to Investments</a>
+        <h1>Order Details for {{ trader.Name }}</h1>
         
         <div class="table-container">
-            {% if investments %}
+            {% if orders %}
             <table>
                 <thead>
                     <tr>
-                        <th>Trader Name</th>
-                        <th>Trader ID</th>
+                        <th>Stock Name</th>
+                        <th>Broker Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
                         <th>Total Investment</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for investment in investments %}
-                    <tr onclick="window.location.href='/trader/{{ investment.trader_id }}/orders'" style="cursor: pointer;">
-                        <td>{{ investment.trader_name }}</td>
-                        <td>{{ investment.trader_id }}</td>
-                        <td>₹{{ investment.total_investment | round(2) }}</td>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.stock_name }}</td>
+                        <td>{{ order.broker_name if order.broker_name else 'N/A' }}</td>
+                        <td>{{ order.quantity }}</td>
+                        <td>₹{{ order.price | round(2) }}</td>
+                        <td>₹{{ order.total_investment | round(2) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             {% else %}
             <div class="empty-state">
-                <p>No investment data available</p>
+                <p>No orders found for this trader.</p>
             </div>
             {% endif %}
         </div>

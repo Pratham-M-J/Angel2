@@ -32,6 +32,7 @@ class Stock:
         cursor.execute('SELECT * FROM Stock WHERE `Stock ID` = %s', (stock_id,))
         stock = cursor.fetchone()
         conn.close()
+        print("Stock ID is: ", stock_id)
         return stock
     
     @staticmethod
@@ -70,6 +71,13 @@ class Trader:
     def create(name, age, phone_number=None, mail_id=None):
         conn = get_db_connection()
         cursor = conn.cursor()
+        # Ensure phone_number is an integer
+        if phone_number:
+            try:
+                phone_number = int(phone_number)
+            except (ValueError, TypeError):
+                phone_number = None  # Or handle the error as you see fit
+
         cursor.execute(
             'INSERT INTO Trader (Name, Age, `Phone Number`, `Mail ID`) VALUES (%s, %s, %s, %s)',
             (name, age, phone_number, mail_id)
@@ -99,12 +107,12 @@ class Order:
         return order
     
     @staticmethod
-    def create(stock_name, quantity, stock_id, order_type='stock'):
+    def create(stock_name, quantity, stock_id, order_type='stock', action='buy', broker_id=None, trader_id=None):
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO `Order` (`Stock Name`, Quantity, `Stock ID`) VALUES (%s, %s, %s)',
-            (stock_name, quantity, stock_id)
+            'INSERT INTO `Order` (`Stock Name`, Quantity, `Stock ID`, `Order Type`, action, BrokerID, `Trader ID`) VALUES (%s, %s, %s, %s, %s, %s, %s)',
+            (stock_name, quantity, stock_id, order_type, action, broker_id, trader_id)
         )
         order_id = cursor.lastrowid
         conn.commit()
@@ -121,6 +129,117 @@ class Order:
         )
         conn.commit()
         conn.close()
+
+    @staticmethod
+    def get_trader_investments():
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT
+                t.Name AS trader_name,
+                t.`DMAT Account Number` AS trader_id,
+                COALESCE(SUM(
+                    CASE
+                        WHEN o.`Order Type` = 'stock' AND o.action = 'buy' THEN o.Quantity * s.`Stock Price`
+                        WHEN o.`Order Type` = 'stock' AND o.action = 'sell' THEN -o.Quantity * s.`Stock Price`
+                        WHEN o.`Order Type` = 'fo' AND o.action = 'buy' THEN o.Quantity * fo.`Contract Size` * s_fo.`Stock Price`
+                        WHEN o.`Order Type` = 'fo' AND o.action = 'sell' THEN -o.Quantity * fo.`Contract Size` * s_fo.`Stock Price`
+                        ELSE 0
+                    END
+                ), 0) AS total_investment
+            FROM
+                Trader t
+            LEFT JOIN
+                trader_order tor ON t.`DMAT Account Number` = tor.`trader id`
+            LEFT JOIN
+                `Order` o ON tor.`order id` = o.`Order ID`
+            LEFT JOIN
+                Stock s ON o.`Stock ID` = s.`Stock ID` AND o.`Order Type` = 'stock'
+            LEFT JOIN
+                `Futures & Options` fo ON o.`Stock ID` = fo.`F&O ID` AND o.`Order Type` = 'fo'
+            LEFT JOIN
+                Stock s_fo ON fo.`Underlying Asset` = s_fo.`Stock ID`
+            GROUP BY
+                t.`DMAT Account Number`, t.Name
+        ''')
+        investments = cursor.fetchall()
+        conn.close()
+        return investments
+
+    @staticmethod
+    def get_orders_by_trader(trader_id):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT
+                o.`Order ID`,
+                o.`Order Type`,
+                o.action,
+                o.Quantity AS quantity,
+                o.`Stock Name` AS stock_name,
+                b.Name AS broker_name,
+                CASE
+                    WHEN o.`Order Type` = 'stock' THEN s.`Stock Price`
+                    WHEN o.`Order Type` = 'fo' THEN s_fo.`Stock Price`
+                END AS price,
+                CASE
+                    WHEN o.`Order Type` = 'stock' AND o.action = 'buy' THEN o.Quantity * s.`Stock Price`
+                    WHEN o.`Order Type` = 'stock' AND o.action = 'sell' THEN -o.Quantity * s.`Stock Price`
+                    WHEN o.`Order Type` = 'fo' AND o.action = 'buy' THEN o.Quantity * fo.`Contract Size` * s_fo.`Stock Price`
+                    WHEN o.`Order Type` = 'fo' AND o.action = 'sell' THEN -o.Quantity * fo.`Contract Size` * s_fo.`Stock Price`
+                    ELSE 0
+                END AS total_investment
+            FROM
+                `Order` o
+            JOIN
+                trader_order tor ON o.`Order ID` = tor.`order id`
+            LEFT JOIN
+                Broker b ON o.BrokerID = b.BrokerID
+            LEFT JOIN
+                Stock s ON o.`Stock ID` = s.`Stock ID` AND o.`Order Type` = 'stock'
+            LEFT JOIN
+                `Futures & Options` fo ON o.`Stock ID` = fo.`F&O ID` AND o.`Order Type` = 'fo'
+            LEFT JOIN
+                Stock s_fo ON fo.`Underlying Asset` = s_fo.`Stock ID`
+            WHERE
+                tor.`trader id` = %s
+        ''', (trader_id,))
+        orders = cursor.fetchall()
+        conn.close()
+        return orders
+
+    @staticmethod
+    def get_trader_holdings(trader_id):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Get stock holdings
+        cursor.execute('''
+            SELECT
+                s.`Stock Name` AS name,
+                SUM(CASE WHEN o.action = 'buy' THEN o.Quantity ELSE -o.Quantity END) AS quantity
+            FROM `Order` o
+            JOIN trader_order tor ON o.`Order ID` = tor.`order id`
+            JOIN Stock s ON o.`Stock ID` = s.`Stock ID`
+            WHERE tor.`trader id` = %s AND o.`Order Type` = 'stock'
+            GROUP BY s.`Stock Name`
+        ''', (trader_id,))
+        stocks = cursor.fetchall()
+
+        # Get F&O holdings
+        cursor.execute('''
+            SELECT
+                fo.Type AS name,
+                SUM(CASE WHEN o.action = 'buy' THEN o.Quantity ELSE -o.Quantity END) AS quantity
+            FROM `Order` o
+            JOIN trader_order tor ON o.`Order ID` = tor.`order id`
+            JOIN `Futures & Options` fo ON o.`Stock ID` = fo.`F&O ID`
+            WHERE tor.`trader id` = %s AND o.`Order Type` = 'fo'
+            GROUP BY fo.Type
+        ''', (trader_id,))
+        fos = cursor.fetchall()
+
+        conn.close()
+        return {"stocks": stocks, "fos": fos}
 
 class Broker:
     @staticmethod

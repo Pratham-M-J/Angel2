@@ -40,6 +40,21 @@
         .back-btn:hover {
             transform: scale(1.05);
         }
+        .add-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: transform 0.2s;
+            float: right;
+            margin-bottom: 20px;
+        }
+        .add-btn:hover {
+            transform: scale(1.05);
+        }
         .table-container {
             background: white;
             border-radius: 15px;
@@ -75,7 +90,8 @@
 <body>
     <div class="container">
         <a href="/" class="back-btn">← Back to Home</a>
-        <h1>👤 Traders</h1>
+        <a href="/trader/create" class="add-btn">+ Add Trader</a>
+        <h1 style="text-align: center; width: 100%;">? Traders</h1>
         
         <div class="table-container">
             {% if traders %}
